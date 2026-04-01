@@ -1,24 +1,53 @@
-import logo from './logo.svg';
-import './App.css';
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import Login from "./components/Login";
+import Signup from "./components/Signup";
+import Dashboard from "./components/Dashboard";
+import ProtectedRoute from "./routes/ProtectedRoute";
+import AuthSuccess from "./components/AuthSuccess";
+import AuthError from "./components/AuthError";
 
 function App() {
+  const token = localStorage.getItem("token");
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <BrowserRouter>
+      <Routes>
+
+        {/* Default route */}
+        <Route
+          path="/"
+          element={
+            token ? <Navigate to="/dashboard" /> : <Navigate to="/login" />
+          }
+        />
+
+        <Route path="/auth-success" element={<AuthSuccess />} />
+        <Route path="/auth-error" element={<AuthError />} />
+
+        {/* Login */}
+        <Route
+          path="/login"
+          element={!token ? <Login /> : <Navigate to="/dashboard" />}
+        />
+
+        {/* Signup */}
+        <Route
+          path="/signup"
+          element={!token ? <Signup /> : <Navigate to="/dashboard" />}
+        />
+
+        {/* Protected Dashboard */}
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+
+      </Routes>
+    </BrowserRouter>
   );
 }
 

@@ -1,0 +1,16 @@
+.auth-message {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  font-family: sans-serif;
+}
+
+.auth-message.success {
+  color: green;
+}
+
+.auth-message.error {
+  color: red;
+}
