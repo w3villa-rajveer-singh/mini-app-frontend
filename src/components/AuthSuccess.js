@@ -18,7 +18,7 @@ function AuthSuccess() {
         navigate("/dashboard");
       }, 1500);
     }
-  }, []);
+  }, [location.search, navigate]);
 
   return (
     <div className="auth-message success">

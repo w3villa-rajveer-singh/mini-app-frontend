@@ -29,7 +29,7 @@ function Dashboard() {
 
   useEffect(() => {
     fetchProfile();
-  }, []);
+  }, [fetchProfile]);
 
   const handleLogout = async () => {
     await logout();

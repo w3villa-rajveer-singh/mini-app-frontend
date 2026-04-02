@@ -24,7 +24,7 @@ function Login() {
         if (token) {
             navigate("/dashboard");
         }
-    }, []);
+    }, [navigate]);
 
     useEffect(() => {
         const params = new URLSearchParams(location.search);
@@ -69,7 +69,7 @@ function Login() {
                 {successMessage && <p className="success">{successMessage}</p>}
 
                 {error && <p className="error">{error}</p>}
-                
+
                 <input
                     type="email"
                     name="email"
