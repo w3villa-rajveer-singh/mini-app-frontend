@@ -11,25 +11,25 @@ function Dashboard() {
 
   const navigate = useNavigate();
 
-  const fetchProfile = async () => {
-    try {
-      const res = await getProfile();
-      setUser(res.data.user);
-    } catch (err) {
-      console.error(err);
-      setError("Failed to load profile");
-
-      // Optional: token expired → logout
-      localStorage.removeItem("token");
-      navigate("/login");
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const res = await getProfile();
+        setUser(res.data.user);
+      } catch (err) {
+        console.error(err);
+        setError("Failed to load profile");
+
+        // Token expired → logout
+        localStorage.removeItem("token");
+        navigate("/login");
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchProfile();
-  }, [fetchProfile]);
+  }, [navigate]); 
 
   const handleLogout = async () => {
     await logout();
@@ -44,7 +44,7 @@ function Dashboard() {
     <div className="dashboard-container">
       <div className="dashboard-card">
         <h1>Welcome, {user?.email}</h1>
-        
+
         <p><strong>Email:</strong> {user?.email}</p>
         <p><strong>User ID:</strong> {user?.id}</p>
 
