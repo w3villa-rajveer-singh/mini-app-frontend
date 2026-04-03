@@ -15,14 +15,15 @@ export const login = async (data) => {
     user: data,
   });
 
-  const token = response.data.token;
-
+  const token = response.data.token || response.data.jwt;
   if (token) {
     localStorage.setItem("token", token);
   }
 
   return response.data;
 };
+
+console.log("LOGIN RESPONSE:", response.data);
 
 // LOGOUT
 export const logout = async () => {
