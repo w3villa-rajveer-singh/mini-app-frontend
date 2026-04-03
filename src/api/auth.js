@@ -20,10 +20,12 @@ export const login = async (data) => {
     localStorage.setItem("token", token);
   }
 
+  console.log("LOGIN RESPONSE:", response.data);
+
   return response.data;
 };
 
-console.log("LOGIN RESPONSE:", response.data);
+
 
 // LOGOUT
 export const logout = async () => {
