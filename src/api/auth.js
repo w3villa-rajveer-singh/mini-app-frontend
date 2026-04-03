@@ -15,17 +15,23 @@ export const login = async (data) => {
     user: data,
   });
 
-  const token = response.data.token || response.data.jwt;
+  console.log("LOGIN RESPONSE:", response.data); // 🔍 debug
+
+  // 🔥 handle all possible token keys
+  const token =
+    response.data.token ||
+    response.data.jwt ||
+    response.data.auth_token;
+
   if (token) {
     localStorage.setItem("token", token);
+    console.log("TOKEN SAVED:", token); // 🔍 debug
+  } else {
+    console.error("❌ No token found in response");
   }
-
-  console.log("LOGIN RESPONSE:", response.data);
 
   return response.data;
 };
-
-
 
 // LOGOUT
 export const logout = async () => {
