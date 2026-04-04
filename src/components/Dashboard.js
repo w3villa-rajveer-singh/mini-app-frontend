@@ -20,9 +20,8 @@ function Dashboard() {
         console.error(err);
         setError("Failed to load profile");
 
-        // Token expired → logout
         localStorage.removeItem("token");
-        navigate("/login");
+        window.location.href = "/login"; // 🔥 fix here too
       } finally {
         setLoading(false);
       }
@@ -31,9 +30,11 @@ function Dashboard() {
     fetchProfile();
   }, [navigate]);
 
-  const handleLogout = async () => {
-    await logout();
-    navigate("/login");
+  const handleLogout = () => {
+    logout();
+
+    // 🔥 IMPORTANT FIX
+    window.location.href = "/login";
   };
 
   if (loading) return <h2>Loading...</h2>;
