@@ -1,4 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+
 import Login from "./components/Login";
 import Signup from "./components/Signup";
 import Dashboard from "./components/Dashboard";
@@ -7,7 +9,20 @@ import AuthSuccess from "./components/AuthSuccess";
 import AuthError from "./components/AuthError";
 
 function App() {
-  const token = localStorage.getItem("token");
+  const [token, setToken] = useState(localStorage.getItem("token"));
+
+  // 🔥 Sync token when it changes (login/logout)
+  useEffect(() => {
+    const syncToken = () => {
+      setToken(localStorage.getItem("token"));
+    };
+
+    window.addEventListener("storage", syncToken);
+
+    return () => {
+      window.removeEventListener("storage", syncToken);
+    };
+  }, []);
 
   return (
     <BrowserRouter>
@@ -21,6 +36,7 @@ function App() {
           }
         />
 
+        {/* Auth routes */}
         <Route path="/auth-success" element={<AuthSuccess />} />
         <Route path="/auth-error" element={<AuthError />} />
 
