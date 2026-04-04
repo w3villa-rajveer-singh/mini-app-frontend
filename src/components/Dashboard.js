@@ -15,7 +15,7 @@ function Dashboard() {
     const fetchProfile = async () => {
       try {
         const res = await getProfile();
-        setUser(res.data.user);
+        setUser(res.user);
       } catch (err) {
         console.error(err);
         setError("Failed to load profile");
@@ -29,7 +29,7 @@ function Dashboard() {
     };
 
     fetchProfile();
-  }, [navigate]); 
+  }, [navigate]);
 
   const handleLogout = async () => {
     await logout();
