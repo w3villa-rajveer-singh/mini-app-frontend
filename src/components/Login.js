@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { login } from "../api/auth";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import "./Login.css";
 
 function Login() {
@@ -14,14 +14,15 @@ function Login() {
   const [successMessage, setSuccessMessage] = useState("");
 
   const location = useLocation();
+  const navigate = useNavigate();
 
-  // ✅ Auto redirect if already logged in
+  // ✅ Redirect if already logged in
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
-      window.location.href = "/dashboard";
+      navigate("/dashboard");
     }
-  }, []);
+  }, [navigate]);
 
   // ✅ Email confirmation message
   useEffect(() => {
@@ -47,8 +48,8 @@ function Login() {
     try {
       await login(formData);
 
-      // 🔥 Force reload → ensures token is picked globally
-      window.location.href = "/dashboard";
+      // ✅ React navigation (no reload)
+      navigate("/dashboard");
 
     } catch (err) {
       console.error(err);

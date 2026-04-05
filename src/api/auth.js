@@ -15,19 +15,16 @@ export const login = async (data) => {
     user: data,
   });
 
-  console.log("LOGIN RESPONSE:", response.data); // 🔍 debug
+  console.log("LOGIN RESPONSE:", response);
 
-  // 🔥 handle all possible token keys
-  const token =
-    response.data.token ||
-    response.data.jwt ||
-    response.data.auth_token;
+  // 🔥 IMPORTANT: Devise JWT sends token in headers
+  const token = response.headers.authorization;
 
   if (token) {
     localStorage.setItem("token", token);
-    console.log("TOKEN SAVED:", token); // 🔍 debug
+    console.log("✅ TOKEN SAVED:", token);
   } else {
-    console.error("❌ No token found in response");
+    console.error("❌ No token found in headers");
   }
 
   return response.data;
@@ -36,9 +33,10 @@ export const login = async (data) => {
 // LOGOUT
 export const logout = async () => {
   try {
+    // ✅ REQUIRED for blacklist
     await API.delete("/logout");
   } catch (err) {
-    console.error("Logout API failed (can ignore if JWT)", err);
+    console.error("Logout API failed", err);
   } finally {
     localStorage.removeItem("token");
   }

@@ -20,8 +20,9 @@ function Dashboard() {
         console.error(err);
         setError("Failed to load profile");
 
+        // ✅ token invalid → logout locally
         localStorage.removeItem("token");
-        window.location.href = "/login"; // 🔥 fix here too
+        navigate("/login");
       } finally {
         setLoading(false);
       }
@@ -30,11 +31,15 @@ function Dashboard() {
     fetchProfile();
   }, [navigate]);
 
-  const handleLogout = () => {
-    logout();
-
-    // 🔥 IMPORTANT FIX
-    window.location.href = "/login";
+  const handleLogout = async () => {
+    try {
+      await logout(); // ✅ important (blacklist token)
+    } catch (err) {
+      console.error("Logout failed:", err);
+    } finally {
+      localStorage.removeItem("token"); // extra safety
+      navigate("/login"); // ✅ SPA navigation
+    }
   };
 
   if (loading) return <h2>Loading...</h2>;
