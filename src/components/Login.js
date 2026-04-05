@@ -16,6 +16,15 @@ function Login() {
   const location = useLocation();
   const navigate = useNavigate();
 
+  // ✅ Social Login Handlers
+  const googleLogin = () => {
+    window.location.href = "http://localhost:3000/auth/google_oauth2";
+  };
+
+  const facebookLogin = () => {
+    window.location.href = "http://localhost:3000/auth/facebook";
+  };
+
   // ✅ Redirect if already logged in
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -88,6 +97,27 @@ function Login() {
         <button type="submit" disabled={loading}>
           {loading ? "Logging in..." : "Login"}
         </button>
+
+        {/* 🔥 Social Login Section */}
+        <div style={{ marginTop: "20px", textAlign: "center" }}>
+          <p>OR</p>
+
+          <button
+            type="button"
+            onClick={googleLogin}
+            style={{ margin: "5px" }}
+          >
+            Continue with Google
+          </button>
+
+          <button
+            type="button"
+            onClick={facebookLogin}
+            style={{ margin: "5px" }}
+          >
+            Continue with Facebook
+          </button>
+        </div>
 
         <p style={{ textAlign: "center", marginTop: "10px" }}>
           New user? <Link to="/signup">Sign up</Link>

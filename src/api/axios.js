@@ -10,11 +10,15 @@ const API = axios.create({
 
 // Attach token automatically
 API.interceptors.request.use((config) => {
-  const token = localStorage.getItem("token");
+  let token = localStorage.getItem("token");
 
   if (token) {
-    // ✅ FIX: send token as-is (already contains "Bearer")
-    config.headers.Authorization = token;
+    // ✅ Remove duplicate Bearer if present
+    if (token.startsWith("Bearer ")) {
+      token = token.replace("Bearer ", "");
+    }
+
+    config.headers.Authorization = `Bearer ${token}`;
   }
 
   return config;

@@ -7,6 +7,7 @@ import Dashboard from "./components/Dashboard";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import AuthSuccess from "./components/AuthSuccess";
 import AuthError from "./components/AuthError";
+import SocialLogin from "./components/SocialLogin"; // ✅ ADD THIS
 
 function App() {
   const [token, setToken] = useState(localStorage.getItem("token"));
@@ -35,6 +36,9 @@ function App() {
             token ? <Navigate to="/dashboard" /> : <Navigate to="/login" />
           }
         />
+
+        {/* ✅ Social login callback route */}
+        <Route path="/social-login" element={<SocialLogin />} />
 
         {/* Auth routes */}
         <Route path="/auth-success" element={<AuthSuccess />} />
