@@ -3,6 +3,9 @@ import { login } from "../api/auth";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import "./Login.css";
 
+// ✅ Use env variable
+const BACKEND_URL = process.env.REACT_APP_API_URL;
+
 function Login() {
   const [formData, setFormData] = useState({
     email: "",
@@ -18,11 +21,11 @@ function Login() {
 
   // ✅ Social Login Handlers
   const googleLogin = () => {
-    window.location.href = "http://localhost:3000/auth/google_oauth2";
+    window.location.href = `${BACKEND_URL}/auth/google_oauth2`;
   };
 
   const facebookLogin = () => {
-    window.location.href = "http://localhost:3000/auth/facebook";
+    window.location.href = `${BACKEND_URL}/auth/facebook`;
   };
 
   // ✅ Redirect if already logged in
@@ -56,10 +59,7 @@ function Login() {
 
     try {
       await login(formData);
-
-      // ✅ React navigation (no reload)
       navigate("/dashboard");
-
     } catch (err) {
       console.error(err);
       setError("Invalid email or password");
@@ -102,19 +102,11 @@ function Login() {
         <div style={{ marginTop: "20px", textAlign: "center" }}>
           <p>OR</p>
 
-          <button
-            type="button"
-            onClick={googleLogin}
-            style={{ margin: "5px" }}
-          >
+          <button type="button" onClick={googleLogin} style={{ margin: "5px" }}>
             Continue with Google
           </button>
 
-          <button
-            type="button"
-            onClick={facebookLogin}
-            style={{ margin: "5px" }}
-          >
+          <button type="button" onClick={facebookLogin} style={{ margin: "5px" }}>
             Continue with Facebook
           </button>
         </div>
