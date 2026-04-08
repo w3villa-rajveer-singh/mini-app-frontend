@@ -27,7 +27,7 @@
   margin: 10px 0;
 }
 
-.dashboard-card button {
+.dashboard-card button:not(.tab-button) {
   margin-top: 20px;
   padding: 10px 15px;
   border: none;
@@ -37,7 +37,7 @@
   cursor: pointer;
 }
 
-.dashboard-card button:hover {
+.dashboard-card button:not(.tab-button):hover {
   background: #d9363e;
 }
 
@@ -125,35 +125,66 @@
 
 .tabs-container {
   display: flex;
+  justify-content: center;
+  gap: 20px;
   border-bottom: 2px solid #e1e5e9;
   margin: 20px 0;
 }
 
 .tab-button {
-  background: none;
+  background: #007bff;
   border: none;
   padding: 12px 24px;
   font-size: 14px;
   font-weight: 500;
-  color: #666;
+  color: white;
   cursor: pointer;
-  border-bottom: 2px solid transparent;
+  border-radius: 6px;
   transition: all 0.3s ease;
 }
 
 .tab-button:hover {
-  color: #6c63ff;
-  background-color: #f8f9fa;
+  background: #0056b3;
+  color: white;
 }
 
 .tab-button.active {
-  color: #6c63ff;
-  border-bottom-color: #6c63ff;
-  background-color: #f8f9fa;
+  background: #0056b3;
+  color: white;
+  box-shadow: 0 2px 4px rgba(0, 123, 255, 0.3);
 }
 
 .tab-content {
   padding: 20px 0;
+}
+
+.plan-buttons {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.silver-btn {
+  background: #C0C0C0 !important;
+  color: #333 !important;
+  border: 2px solid #999 !important;
+}
+
+.silver-btn:hover {
+  background: #A8A8A8 !important;
+  border-color: #777 !important;
+}
+
+.gold-btn {
+  background: #FFD700 !important;
+  color: #333 !important;
+  border: 2px solid #CCAC00 !important;
+}
+
+.gold-btn:hover {
+  background: #FFC700 !important;
+  border-color: #AA9500 !important;
 }
 
 .dashboard-card .download-profile-btn {

@@ -8,6 +8,7 @@ import ProtectedRoute from "./routes/ProtectedRoute";
 import AuthSuccess from "./components/AuthSuccess";
 import AuthError from "./components/AuthError";
 import SocialLogin from "./components/SocialLogin"; // ✅ ADD THIS
+import Success from "./components/Success";
 
 function App() {
   const [token, setToken] = useState(localStorage.getItem("token"));
@@ -43,6 +44,9 @@ function App() {
         {/* Auth routes */}
         <Route path="/auth-success" element={<AuthSuccess />} />
         <Route path="/auth-error" element={<AuthError />} />
+
+        {/* ✅ ADD THIS 👇 */}
+        <Route path="/success" element={<Success />} />
 
         {/* Login */}
         <Route

@@ -79,12 +79,14 @@ function Dashboard() {
     const profileData = {
       email: user?.email,
       userId: user?.id,
+      currentPlan: user?.plan_type ? user.plan_type.charAt(0).toUpperCase() + user.plan_type.slice(1) : 'Free',
+      planExpiry: user?.plan_expiry ? new Date(user.plan_expiry).toLocaleDateString() : 'Never',
       address: location.address,
       latitude: location.latitude,
       longitude: location.longitude,
       downloadedAt: new Date().toISOString()
     };
-    
+
     const blob = new Blob([JSON.stringify(profileData, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -105,7 +107,7 @@ function Dashboard() {
         const res = await getProfile();
         setUser(res.user);
         setAvatarUrl(res.avatar_url);
-        
+
         // Set location from backend if available
         if (res.location && res.location.address) {
           setLocation({
@@ -164,14 +166,36 @@ function Dashboard() {
     }
   };
 
+  // Stripe Subscribe
+  const subscribe = async (priceId, plan) => {
+    try {
+      console.log("Sending:", priceId, plan);
+      console.log("Environment variables:", {
+        silver: process.env.REACT_APP_SILVER_PRICE_ID,
+        gold: process.env.REACT_APP_GOLD_PRICE_ID
+      });
+
+      const res = await API.post("/create-checkout", {
+        payment: {
+          price_id: priceId,
+        },
+        plan: plan, // ✅ ADD THIS
+      });
+
+      window.location.href = res.data.url;
+    } catch (err) {
+      console.error("Payment error:", err);
+    }
+  };
+
   if (loading) return <h2>Loading...</h2>;
   if (error) return <h2>{error}</h2>;
 
   return (
     <div className="dashboard-container">
       <div className="dashboard-card">
-        {/* Welcome Section - Only show when profile tab is NOT active */}
-        {activeTab !== 'profile' && (
+        {/* Welcome Section - Only show when profile and plans tabs are NOT active */}
+        {activeTab !== 'profile' && activeTab !== 'plans' && (
           <>
             <h1>Welcome, {user?.email}</h1>
 
@@ -202,18 +226,32 @@ function Dashboard() {
         {/* Tabs Container */}
         <div className="tabs-container">
           {activeTab === 'profile' && (
-            <button 
+            <button
               className={'tab-button'}
               onClick={() => setActiveTab(null)}
             >
               Back to Dashboard
             </button>
           )}
-          <button 
+          {activeTab === 'plans' && (
+            <button
+              className={'tab-button'}
+              onClick={() => setActiveTab(null)}
+            >
+              Back to Dashboard
+            </button>
+          )}
+          <button
             className={activeTab === 'profile' ? 'tab-button active' : 'tab-button'}
             onClick={() => setActiveTab('profile')}
           >
             Profile
+          </button>
+          <button
+            className={activeTab === 'plans' ? 'tab-button active' : 'tab-button'}
+            onClick={() => setActiveTab('plans')}
+          >
+            Plans
           </button>
         </div>
 
@@ -225,14 +263,16 @@ function Dashboard() {
               <h3>User Information</h3>
               <p><strong>Email:</strong> {user?.email}</p>
               <p><strong>User ID:</strong> {user?.id}</p>
+              <p><strong>Current Plan:</strong> {user?.plan_type ? user.plan_type.charAt(0).toUpperCase() + user.plan_type.slice(1) : 'Free'}</p>
+              <p><strong>Expiry:</strong> {user?.plan_expiry ? new Date(user.plan_expiry).toLocaleDateString() : 'Never'}</p>
               {location.address && (
                 <>
                   <p>
                     <strong>Address:</strong> {location.address}
                     <span
-                      style={{ 
-                        cursor: "pointer", 
-                        color: "#6c63ff", 
+                      style={{
+                        cursor: "pointer",
+                        color: "#6c63ff",
                         marginLeft: "2px",
                         fontSize: "16px"
                       }}
@@ -248,6 +288,7 @@ function Dashboard() {
               )}
             </div>
 
+            {/* LOCATION INPUT SECTION */}
             {/* ✅ LOCATION INPUT SECTION */}
             <div className="location-input-section">
               <h3>Select Your Location</h3>
@@ -271,10 +312,29 @@ function Dashboard() {
                   disabled
                 />
               )}
-              
+
               <button className="download-profile-btn" onClick={handleDownloadProfile}>
                 Download Profile
               </button>
+            </div>
+          </div>
+        )}
+
+        {/* Plans Tab Content */}
+        {activeTab === 'plans' && (
+          <div className="tab-content">
+            <div className="plans-section">
+              <h3>Upgrade Plan</h3>
+
+              <div className="plan-buttons">
+                <button className="silver-btn" onClick={() => subscribe(process.env.REACT_APP_SILVER_PRICE_ID, "silver")}>
+                  Buy Silver
+                </button>
+
+                <button className="gold-btn" onClick={() => subscribe(process.env.REACT_APP_GOLD_PRICE_ID, "gold")}>
+                  Buy Gold
+                </button>
+              </div>
             </div>
           </div>
         )}
