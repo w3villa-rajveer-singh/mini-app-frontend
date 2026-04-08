@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { getProfile } from "../api/user";
 import { logout } from "../api/auth";
-import API from "../api/axios"; // ✅ USE THIS
+import API from "../api/axios";
 import { useNavigate } from "react-router-dom";
+import { useLoadScript, Autocomplete } from "@react-google-maps/api";
 import "./Dashboard.css";
 
 function Dashboard() {
@@ -12,15 +13,84 @@ function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  // ✅ location state
+  const [location, setLocation] = useState({
+    address: "",
+    latitude: null,
+    longitude: null,
+  });
+
+  // ✅ Google Maps script loading
+  const { isLoaded } = useLoadScript({
+    googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY,
+    libraries: ["places"],
+  });
+
+  const [autocomplete, setAutocomplete] = useState(null);
+
+  const onPlaceChanged = () => {
+    if (autocomplete) {
+      const place = autocomplete.getPlace();
+      if (!place.geometry) return;
+
+      const lat = place.geometry.location.lat();
+      const lng = place.geometry.location.lng();
+
+      const newLocation = {
+        address: place.formatted_address,
+        latitude: lat,
+        longitude: lng,
+      };
+
+      setLocation(newLocation);
+      saveLocationToBackend(newLocation);
+    }
+  };
+
+  // Save location to backend
+  const saveLocationToBackend = async (locationData) => {
+    try {
+      const formData = new FormData();
+      formData.append("user[address]", locationData.address);
+      formData.append("user[latitude]", locationData.latitude);
+      formData.append("user[longitude]", locationData.longitude);
+
+      await API.put("/profile", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+    } catch (err) {
+      console.error("Failed to save location:", err);
+    }
+  };
+
+  // Handle address click to open Google Maps
+  const handleAddressClick = () => {
+    if (location.latitude && location.longitude) {
+      const googleMapsUrl = `https://www.google.com/maps?q=${location.latitude},${location.longitude}`;
+      window.open(googleMapsUrl, '_blank');
+    }
+  };
+
   const navigate = useNavigate();
 
-  // ✅ Fetch profile
+  // Fetch profile
   useEffect(() => {
     const fetchProfile = async () => {
       try {
         const res = await getProfile();
         setUser(res.user);
         setAvatarUrl(res.avatar_url);
+        
+        // Set location from backend if available
+        if (res.location && res.location.address) {
+          setLocation({
+            address: res.location.address,
+            latitude: res.location.latitude,
+            longitude: res.location.longitude,
+          });
+        }
       } catch (err) {
         console.error(err);
         setError("Failed to load profile");
@@ -34,7 +104,7 @@ function Dashboard() {
     fetchProfile();
   }, [navigate]);
 
-  // ✅ Upload handler (PRODUCTION SAFE)
+  // Upload avatar
   const handleUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -59,7 +129,7 @@ function Dashboard() {
     }
   };
 
-  // ✅ Logout
+  // Logout
   const handleLogout = async () => {
     try {
       await logout();
@@ -79,28 +149,80 @@ function Dashboard() {
       <div className="dashboard-card">
         <h1>Welcome, {user?.email}</h1>
 
-        {/* Avatar / Preview / Fallback */}
-        {preview || avatarUrl ? (
-          <img
-            src={preview || avatarUrl}
-            alt="avatar"
-            className="avatar"
-            onError={(e) => (e.target.style.display = "none")}
-          />
-        ) : (
-          <div className="avatar-placeholder">
-            {user?.email?.charAt(0).toUpperCase()}
-          </div>
-        )}
+        {/* Avatar */}
+        <div className="avatar-section">
+          {preview || avatarUrl ? (
+            <img
+              src={preview || avatarUrl}
+              alt="avatar"
+              className="avatar"
+              onError={(e) => (e.target.style.display = "none")}
+            />
+          ) : (
+            <div className="avatar-placeholder">
+              {user?.email?.charAt(0).toUpperCase()}
+            </div>
+          )}
 
-        {/* Upload */}
-        <label className="upload-btn">
-          Upload Profile Picture
-          <input type="file" onChange={handleUpload} hidden />
-        </label>
+          {/* Upload */}
+          <label className="upload-btn">
+            Upload Profile Picture
+            <input type="file" onChange={handleUpload} hidden />
+          </label>
+        </div>
 
-        <p><strong>Email:</strong> {user?.email}</p>
-        <p><strong>User ID:</strong> {user?.id}</p>
+        {/* User Info Section */}
+        <div className="user-info-section">
+          <h3>User Information</h3>
+          <p><strong>Email:</strong> {user?.email}</p>
+          <p><strong>User ID:</strong> {user?.id}</p>
+          {location.address && (
+            <>
+              <p>
+                <strong>Address:</strong> {location.address}
+                <span
+                  style={{ 
+                    cursor: "pointer", 
+                    color: "#6c63ff", 
+                    marginLeft: "2px",
+                    fontSize: "16px"
+                  }}
+                  onClick={handleAddressClick}
+                  title="View on Google Maps"
+                >
+                  📍
+                </span>
+              </p>
+              <p><strong>Latitude:</strong> {location.latitude}</p>
+              <p><strong>Longitude:</strong> {location.longitude}</p>
+            </>
+          )}
+        </div>
+
+        {/* ✅ LOCATION INPUT SECTION */}
+        <div className="location-input-section">
+          <h3>Select Your Location</h3>
+          {isLoaded ? (
+            <Autocomplete
+              onLoad={(auto) => setAutocomplete(auto)}
+              onPlaceChanged={onPlaceChanged}
+            >
+              <input
+                type="text"
+                placeholder="Search your location"
+                className="location-input"
+                defaultValue={location.address}
+              />
+            </Autocomplete>
+          ) : (
+            <input
+              type="text"
+              placeholder="Loading location search..."
+              className="location-input"
+              disabled
+            />
+          )}
+        </div>
 
         <button onClick={handleLogout}>Logout</button>
       </div>
