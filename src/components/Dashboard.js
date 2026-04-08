@@ -12,6 +12,7 @@ function Dashboard() {
   const [preview, setPreview] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [activeTab, setActiveTab] = useState(null);
 
   // ✅ location state
   const [location, setLocation] = useState({
@@ -71,6 +72,28 @@ function Dashboard() {
       const googleMapsUrl = `https://www.google.com/maps?q=${location.latitude},${location.longitude}`;
       window.open(googleMapsUrl, '_blank');
     }
+  };
+
+  // Handle profile download
+  const handleDownloadProfile = () => {
+    const profileData = {
+      email: user?.email,
+      userId: user?.id,
+      address: location.address,
+      latitude: location.latitude,
+      longitude: location.longitude,
+      downloadedAt: new Date().toISOString()
+    };
+    
+    const blob = new Blob([JSON.stringify(profileData, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `profile_${user?.email}_${Date.now()}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   };
 
   const navigate = useNavigate();
@@ -147,82 +170,114 @@ function Dashboard() {
   return (
     <div className="dashboard-container">
       <div className="dashboard-card">
-        <h1>Welcome, {user?.email}</h1>
+        {/* Welcome Section - Only show when profile tab is NOT active */}
+        {activeTab !== 'profile' && (
+          <>
+            <h1>Welcome, {user?.email}</h1>
 
-        {/* Avatar */}
-        <div className="avatar-section">
-          {preview || avatarUrl ? (
-            <img
-              src={preview || avatarUrl}
-              alt="avatar"
-              className="avatar"
-              onError={(e) => (e.target.style.display = "none")}
-            />
-          ) : (
-            <div className="avatar-placeholder">
-              {user?.email?.charAt(0).toUpperCase()}
+            {/* Avatar */}
+            <div className="avatar-section">
+              {preview || avatarUrl ? (
+                <img
+                  src={preview || avatarUrl}
+                  alt="avatar"
+                  className="avatar"
+                  onError={(e) => (e.target.style.display = "none")}
+                />
+              ) : (
+                <div className="avatar-placeholder">
+                  {user?.email?.charAt(0).toUpperCase()}
+                </div>
+              )}
+
+              {/* Upload */}
+              <label className="upload-btn">
+                Upload Profile Picture
+                <input type="file" onChange={handleUpload} hidden />
+              </label>
             </div>
-          )}
+          </>
+        )}
 
-          {/* Upload */}
-          <label className="upload-btn">
-            Upload Profile Picture
-            <input type="file" onChange={handleUpload} hidden />
-          </label>
-        </div>
-
-        {/* User Info Section */}
-        <div className="user-info-section">
-          <h3>User Information</h3>
-          <p><strong>Email:</strong> {user?.email}</p>
-          <p><strong>User ID:</strong> {user?.id}</p>
-          {location.address && (
-            <>
-              <p>
-                <strong>Address:</strong> {location.address}
-                <span
-                  style={{ 
-                    cursor: "pointer", 
-                    color: "#6c63ff", 
-                    marginLeft: "2px",
-                    fontSize: "16px"
-                  }}
-                  onClick={handleAddressClick}
-                  title="View on Google Maps"
-                >
-                  📍
-                </span>
-              </p>
-              <p><strong>Latitude:</strong> {location.latitude}</p>
-              <p><strong>Longitude:</strong> {location.longitude}</p>
-            </>
-          )}
-        </div>
-
-        {/* ✅ LOCATION INPUT SECTION */}
-        <div className="location-input-section">
-          <h3>Select Your Location</h3>
-          {isLoaded ? (
-            <Autocomplete
-              onLoad={(auto) => setAutocomplete(auto)}
-              onPlaceChanged={onPlaceChanged}
+        {/* Tabs Container */}
+        <div className="tabs-container">
+          {activeTab === 'profile' && (
+            <button 
+              className={'tab-button'}
+              onClick={() => setActiveTab(null)}
             >
-              <input
-                type="text"
-                placeholder="Search your location"
-                className="location-input"
-                defaultValue={location.address}
-              />
-            </Autocomplete>
-          ) : (
-            <input
-              type="text"
-              placeholder="Loading location search..."
-              className="location-input"
-              disabled
-            />
+              Back to Dashboard
+            </button>
           )}
+          <button 
+            className={activeTab === 'profile' ? 'tab-button active' : 'tab-button'}
+            onClick={() => setActiveTab('profile')}
+          >
+            Profile
+          </button>
         </div>
+
+        {/* Tab Content */}
+        {activeTab === 'profile' && (
+          <div className="tab-content">
+            {/* User Info Section */}
+            <div className="user-info-section">
+              <h3>User Information</h3>
+              <p><strong>Email:</strong> {user?.email}</p>
+              <p><strong>User ID:</strong> {user?.id}</p>
+              {location.address && (
+                <>
+                  <p>
+                    <strong>Address:</strong> {location.address}
+                    <span
+                      style={{ 
+                        cursor: "pointer", 
+                        color: "#6c63ff", 
+                        marginLeft: "2px",
+                        fontSize: "16px"
+                      }}
+                      onClick={handleAddressClick}
+                      title="View on Google Maps"
+                    >
+                      📍
+                    </span>
+                  </p>
+                  <p><strong>Latitude:</strong> {location.latitude}</p>
+                  <p><strong>Longitude:</strong> {location.longitude}</p>
+                </>
+              )}
+            </div>
+
+            {/* ✅ LOCATION INPUT SECTION */}
+            <div className="location-input-section">
+              <h3>Select Your Location</h3>
+              {isLoaded ? (
+                <Autocomplete
+                  onLoad={(auto) => setAutocomplete(auto)}
+                  onPlaceChanged={onPlaceChanged}
+                >
+                  <input
+                    type="text"
+                    placeholder="Search your location"
+                    className="location-input"
+                    defaultValue={location.address}
+                  />
+                </Autocomplete>
+              ) : (
+                <input
+                  type="text"
+                  placeholder="Loading location search..."
+                  className="location-input"
+                  disabled
+                />
+              )}
+              
+              <button className="download-profile-btn" onClick={handleDownloadProfile}>
+                Download Profile
+              </button>
+            </div>
+          </div>
+        )}
 
         <button onClick={handleLogout}>Logout</button>
       </div>
