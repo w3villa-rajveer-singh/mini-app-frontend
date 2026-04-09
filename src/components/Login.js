@@ -64,7 +64,7 @@ function Login() {
       
       // ✅ Simple redirect to root - AdminRedirect will handle the rest
       console.log("Login - Redirecting to root path...");
-      navigate("/");
+      window.location.href = "/";
     } catch (err) {
       console.error("Login error:", err);
       setError("Invalid email or password");
