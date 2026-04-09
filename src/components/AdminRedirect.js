@@ -23,7 +23,9 @@ const AdminRedirect = () => {
         console.log("User admin status:", profile?.user?.admin);
 
         // ✅ FIX HERE
-        setIsAdmin(profile.user.admin);
+        const adminStatus = profile.user.admin;
+        console.log("AdminRedirect - Setting isAdmin to:", adminStatus);
+        setIsAdmin(adminStatus);
 
       } catch (error) {
         console.error("Error checking admin status:", error);
@@ -36,7 +38,10 @@ const AdminRedirect = () => {
     checkAdminStatus();
   }, []);
 
+  console.log("AdminRedirect render - loading:", loading, "isAdmin:", isAdmin);
+  
   if (loading) {
+    console.log("AdminRedirect - Showing loading state");
     return (
       <div className="flex justify-center items-center h-64">
         <div className="text-lg">Loading...</div>
@@ -45,9 +50,11 @@ const AdminRedirect = () => {
   }
 
   if (isAdmin) {
+    console.log("AdminRedirect - Redirecting to admin dashboard");
     return <Navigate to="/admin/users" replace />;
   }
 
+  console.log("AdminRedirect - Redirecting to regular dashboard");
   return <Navigate to="/dashboard" replace />;
 };
 
