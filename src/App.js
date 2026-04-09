@@ -14,27 +14,16 @@ import AdminUsers from "./components/AdminUsers";
 import AdminRedirect from "./components/AdminRedirect";
 
 function App() {
-  const [token, setToken] = useState(localStorage.getItem("token"));
-
-  // ✅ keep token synced
-  useEffect(() => {
-    const syncToken = () => {
-      setToken(localStorage.getItem("token"));
-    };
-
-    window.addEventListener("storage", syncToken);
-    return () => window.removeEventListener("storage", syncToken);
-  }, []);
+  const isLoggedIn = !!localStorage.getItem("token");
 
   return (
     <BrowserRouter>
       <Routes>
 
-        {/* ROOT */}
         <Route
           path="/"
           element={
-            token ? (
+            isLoggedIn ? (
               <ProtectedRoute>
                 <AdminRedirect />
               </ProtectedRoute>
@@ -44,27 +33,21 @@ function App() {
           }
         />
 
-        {/* SOCIAL LOGIN */}
         <Route path="/social-login" element={<SocialLogin />} />
-
-        {/* AUTH */}
         <Route path="/auth-success" element={<AuthSuccess />} />
         <Route path="/auth-error" element={<AuthError />} />
         <Route path="/success" element={<Success />} />
 
-        {/* LOGIN */}
         <Route
           path="/login"
-          element={!token ? <Login /> : <Navigate to="/" />}
+          element={!isLoggedIn ? <Login /> : <Navigate to="/" />}
         />
 
-        {/* SIGNUP */}
         <Route
           path="/signup"
-          element={!token ? <Signup /> : <Navigate to="/" />}
+          element={!isLoggedIn ? <Signup /> : <Navigate to="/" />}
         />
 
-        {/* USER DASHBOARD */}
         <Route
           path="/dashboard"
           element={
@@ -74,7 +57,6 @@ function App() {
           }
         />
 
-        {/* ADMIN */}
         <Route
           path="/admin/users"
           element={

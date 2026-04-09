@@ -17,14 +17,9 @@ const AdminRedirect = () => {
         }
 
         const response = await getProfile();
+        const user = response.user; // since you already fixed API
 
-        // ✅ FIXED HERE
-        const user = response.data.user;
-
-        console.log("User:", user);
-        console.log("Admin:", user.admin);
-
-        setIsAdmin(user.admin === true);
+        setIsAdmin(user?.admin === true);
 
       } catch (error) {
         console.error("Error checking admin:", error);

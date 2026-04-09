@@ -50,31 +50,27 @@ function Login() {
 
   // ✅ FIXED: SAVE TOKEN
   const handleLogin = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError("");
+  e.preventDefault();
+  setLoading(true);
+  setError("");
 
-    try {
-      const response = await login(formData);
+  try {
+    const response = await login(formData);
 
-      console.log("Login response:", response.data);
+    const token = response.data.token;
+    localStorage.setItem("token", token);
 
-      // 🔥 CRITICAL FIX
-      const token = response.data.token;
-      localStorage.setItem("token", token);
+    console.log("Token saved:", token);
 
-      console.log("Token saved:", token);
+    // ✅ FIXED
+    navigate("/");
 
-      // ✅ go to root → AdminRedirect will handle role
-      window.location.href = "/";
-
-    } catch (err) {
-      console.error("Login error:", err);
-      setError("Invalid email or password");
-    } finally {
-      setLoading(false);
-    }
-  };
+  } catch (err) {
+    setError("Invalid email or password");
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div className="login-container">
