@@ -8,13 +8,13 @@ const API = axios.create({
   },
 });
 
-// ✅ Attach token automatically to every request
+// ✅ Attach token to every request
 API.interceptors.request.use(
   (config) => {
     let token = localStorage.getItem("token");
 
     if (token) {
-      // 🔥 Ensure no duplicate "Bearer "
+      // Remove duplicate "Bearer " if present
       if (token.startsWith("Bearer ")) {
         token = token.replace("Bearer ", "");
       }
@@ -27,17 +27,28 @@ API.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// ✅ Handle unauthorized globally (VERY IMPORTANT)
+// ✅ Handle errors (SAFE VERSION)
 API.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response && error.response.status === 401) {
-      console.warn("Unauthorized - logging out");
+    // 🔍 Debug log (VERY IMPORTANT)
+    if (error.response) {
+      console.warn("API Error:", {
+        url: error.config?.url,
+        status: error.response.status,
+        data: error.response.data,
+      });
+    }
 
-      // 🔥 Clear token + redirect
+    // ✅ Only logout if AUTH endpoint fails
+    if (
+      error.response?.status === 401 &&
+      error.config?.url?.includes("/profile")
+    ) {
+      console.warn("Auth failed → logging out");
+
       localStorage.removeItem("token");
 
-      // Avoid infinite redirect loop
       if (window.location.pathname !== "/login") {
         window.location.href = "/login";
       }
