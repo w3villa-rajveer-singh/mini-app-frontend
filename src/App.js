@@ -5,10 +5,13 @@ import Login from "./components/Login";
 import Signup from "./components/Signup";
 import Dashboard from "./components/Dashboard";
 import ProtectedRoute from "./routes/ProtectedRoute";
+import AdminRoute from "./routes/AdminRoute";
 import AuthSuccess from "./components/AuthSuccess";
 import AuthError from "./components/AuthError";
 import SocialLogin from "./components/SocialLogin"; // ✅ ADD THIS
 import Success from "./components/Success";
+import AdminUsers from "./components/AdminUsers";
+import AdminRedirect from "./components/AdminRedirect";
 
 function App() {
   const [token, setToken] = useState(localStorage.getItem("token"));
@@ -34,7 +37,13 @@ function App() {
         <Route
           path="/"
           element={
-            token ? <Navigate to="/dashboard" /> : <Navigate to="/login" />
+            token ? (
+              <ProtectedRoute>
+                <AdminRedirect />
+              </ProtectedRoute>
+            ) : (
+              <Navigate to="/login" />
+            )
           }
         />
 
@@ -66,6 +75,18 @@ function App() {
           element={
             <ProtectedRoute>
               <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Admin Routes */}
+        <Route
+          path="/admin/users"
+          element={
+            <ProtectedRoute>
+              <AdminRoute>
+                <AdminUsers />
+              </AdminRoute>
             </ProtectedRoute>
           }
         />
