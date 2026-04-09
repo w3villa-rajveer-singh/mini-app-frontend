@@ -17,7 +17,10 @@ const AdminRedirect = () => {
         }
 
         const profile = await getProfile();
-        setIsAdmin(profile.user.admin);
+
+        // ✅ FIX HERE
+        setIsAdmin(profile.data.user.admin);
+
       } catch (error) {
         console.error("Error checking admin status:", error);
         setIsAdmin(false);
