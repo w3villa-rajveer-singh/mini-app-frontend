@@ -63,6 +63,7 @@ function Login() {
       console.log("Login successful:", loginResponse);
       
       // ✅ Simple redirect to root - AdminRedirect will handle the rest
+      console.log("Login - Redirecting to root path...");
       navigate("/");
     } catch (err) {
       console.error("Login error:", err);

@@ -16,10 +16,14 @@ import AdminRedirect from "./components/AdminRedirect";
 function App() {
   const [token, setToken] = useState(localStorage.getItem("token"));
 
+  console.log("App render - token:", token);
+
   // 🔥 Sync token when it changes (login/logout)
   useEffect(() => {
     const syncToken = () => {
-      setToken(localStorage.getItem("token"));
+      const newToken = localStorage.getItem("token");
+      console.log("App - storage event, new token:", newToken);
+      setToken(newToken);
     };
 
     window.addEventListener("storage", syncToken);
