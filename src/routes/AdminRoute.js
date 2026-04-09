@@ -17,6 +17,11 @@ const AdminRoute = ({ children }) => {
         }
 
         const profile = await getProfile();
+        
+        // 🔍 DEBUG: Log the entire profile response
+        console.log("AdminRoute - Profile response:", profile);
+        console.log("AdminRoute - User admin status:", profile?.user?.admin);
+        
         setIsAdmin(profile.user.admin);
       } catch (error) {
         console.error("Error checking admin status:", error);
