@@ -50,32 +50,39 @@ function Login() {
 
   // ✅ FINAL LOGIN FIX
   const handleLogin = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError("");
+  e.preventDefault();
+  setLoading(true);
+  setError("");
 
-    try {
-      const response = await login(formData);
+  try {
+    const response = await login(formData);
 
-      const token = response.data.token;
-      const user = response.data.user;
+    console.log("Login response:", response);
 
-      console.log("Login success:", response.data);
+    // ✅ FIX: get token from headers
+    let token = response.headers.authorization;
 
-      // ✅ SAVE EVERYTHING
-      localStorage.setItem("token", token);
-      localStorage.setItem("user", JSON.stringify(user));
+    // remove "Bearer " prefix (important)
+    token = token.replace("Bearer ", "");
 
-      // ✅ React navigation (NO reload)
-      navigate("/");
+    const user = response.data.user;
 
-    } catch (err) {
-      console.error(err);
-      setError("Invalid email or password");
-    } finally {
-      setLoading(false);
-    }
-  };
+    console.log("Extracted token:", token);
+    console.log("User:", user);
+
+    // ✅ SAVE
+    localStorage.setItem("token", token);
+    localStorage.setItem("user", JSON.stringify(user));
+
+    navigate("/");
+
+  } catch (err) {
+    console.error(err);
+    setError("Invalid email or password");
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div className="login-container">
