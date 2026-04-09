@@ -10,25 +10,24 @@ const AdminRedirect = () => {
     const checkAdminStatus = async () => {
       try {
         const token = localStorage.getItem("token");
+
         if (!token) {
           setIsAdmin(false);
-          setLoading(false);
           return;
         }
 
-        const profile = await getProfile();
+        const response = await getProfile();
 
-        // 🔍 DEBUG: Log the entire profile response
-        console.log("Profile response:", profile);
-        console.log("User admin status:", profile?.user?.admin);
+        // ✅ FIXED HERE
+        const user = response.data.user;
 
-        // ✅ FIX HERE
-        const adminStatus = profile.user.admin;
-        console.log("AdminRedirect - Setting isAdmin to:", adminStatus);
-        setIsAdmin(adminStatus);
+        console.log("User:", user);
+        console.log("Admin:", user.admin);
+
+        setIsAdmin(user.admin === true);
 
       } catch (error) {
-        console.error("Error checking admin status:", error);
+        console.error("Error checking admin:", error);
         setIsAdmin(false);
       } finally {
         setLoading(false);
@@ -38,24 +37,15 @@ const AdminRedirect = () => {
     checkAdminStatus();
   }, []);
 
-  console.log("AdminRedirect render - loading:", loading, "isAdmin:", isAdmin);
-  
   if (loading) {
-    console.log("AdminRedirect - Showing loading state");
-    return (
-      <div className="flex justify-center items-center h-64">
-        <div className="text-lg">Loading...</div>
-      </div>
-    );
+    return <div style={{ textAlign: "center", marginTop: "50px" }}>Loading...</div>;
   }
 
-  if (isAdmin) {
-    console.log("AdminRedirect - Redirecting to admin dashboard");
-    return <Navigate to="/admin/users" replace />;
-  }
-
-  console.log("AdminRedirect - Redirecting to regular dashboard");
-  return <Navigate to="/dashboard" replace />;
+  return isAdmin ? (
+    <Navigate to="/admin/users" replace />
+  ) : (
+    <Navigate to="/dashboard" replace />
+  );
 };
 
 export default AdminRedirect;
