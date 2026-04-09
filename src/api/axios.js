@@ -8,17 +8,13 @@ const API = axios.create({
   },
 });
 
-// ✅ Attach token to every request
+// ✅ Attach token
 API.interceptors.request.use(
   (config) => {
     let token = localStorage.getItem("token");
 
     if (token) {
-      // Remove duplicate "Bearer " if present
-      if (token.startsWith("Bearer ")) {
-        token = token.replace("Bearer ", "");
-      }
-
+      token = token.replace("Bearer ", "");
       config.headers.Authorization = `Bearer ${token}`;
     }
 
@@ -27,11 +23,10 @@ API.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// ✅ Handle errors (SAFE VERSION)
+// ✅ Handle auth errors safely
 API.interceptors.response.use(
   (response) => response,
   (error) => {
-    // 🔍 Debug log (VERY IMPORTANT)
     if (error.response) {
       console.warn("API Error:", {
         url: error.config?.url,
@@ -40,12 +35,12 @@ API.interceptors.response.use(
       });
     }
 
-    // ✅ Only logout if AUTH endpoint fails
+    // 🔥 ONLY logout if profile fails
     if (
       error.response?.status === 401 &&
       error.config?.url?.includes("/profile")
     ) {
-      console.warn("Auth failed → logging out");
+      console.warn("Token expired → logging out");
 
       localStorage.removeItem("token");
 

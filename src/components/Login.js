@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { login } from "../api/auth";
-import { getProfile } from "../api/user";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import "./Login.css";
 
-// ✅ Use env variable
 const BACKEND_URL = process.env.REACT_APP_API_URL;
 
 function Login() {
@@ -20,7 +18,6 @@ function Login() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  // ✅ Social Login Handlers
   const googleLogin = () => {
     window.location.href = `${BACKEND_URL}/auth/google_oauth2`;
   };
@@ -29,18 +26,16 @@ function Login() {
     window.location.href = `${BACKEND_URL}/auth/facebook`;
   };
 
-  // ✅ Redirect if already logged in
+  // ✅ FIXED: redirect to root (NOT dashboard)
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
-      navigate("/dashboard");
+      navigate("/");
     }
   }, [navigate]);
 
-  // ✅ Email confirmation message
   useEffect(() => {
     const params = new URLSearchParams(location.search);
-
     if (params.get("confirmed")) {
       setSuccessMessage("✅ Email verified successfully! Please login.");
     }
@@ -53,18 +48,26 @@ function Login() {
     });
   };
 
+  // ✅ FIXED: SAVE TOKEN
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError("");
 
     try {
-      const loginResponse = await login(formData);
-      console.log("Login successful:", loginResponse);
-      
-      // ✅ Simple redirect to root - AdminRedirect will handle the rest
-      console.log("Login - Redirecting to root path...");
+      const response = await login(formData);
+
+      console.log("Login response:", response.data);
+
+      // 🔥 CRITICAL FIX
+      const token = response.data.token;
+      localStorage.setItem("token", token);
+
+      console.log("Token saved:", token);
+
+      // ✅ go to root → AdminRedirect will handle role
       window.location.href = "/";
+
     } catch (err) {
       console.error("Login error:", err);
       setError("Invalid email or password");
@@ -103,15 +106,14 @@ function Login() {
           {loading ? "Logging in..." : "Login"}
         </button>
 
-        {/* 🔥 Social Login Section */}
         <div style={{ marginTop: "20px", textAlign: "center" }}>
           <p>OR</p>
 
-          <button type="button" onClick={googleLogin} style={{ margin: "5px" }}>
+          <button type="button" onClick={googleLogin}>
             Continue with Google
           </button>
 
-          <button type="button" onClick={facebookLogin} style={{ margin: "5px" }}>
+          <button type="button" onClick={facebookLogin}>
             Continue with Facebook
           </button>
         </div>

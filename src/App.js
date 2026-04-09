@@ -8,7 +8,7 @@ import ProtectedRoute from "./routes/ProtectedRoute";
 import AdminRoute from "./routes/AdminRoute";
 import AuthSuccess from "./components/AuthSuccess";
 import AuthError from "./components/AuthError";
-import SocialLogin from "./components/SocialLogin"; // ✅ ADD THIS
+import SocialLogin from "./components/SocialLogin";
 import Success from "./components/Success";
 import AdminUsers from "./components/AdminUsers";
 import AdminRedirect from "./components/AdminRedirect";
@@ -16,28 +16,21 @@ import AdminRedirect from "./components/AdminRedirect";
 function App() {
   const [token, setToken] = useState(localStorage.getItem("token"));
 
-  console.log("App render - token:", token);
-
-  // 🔥 Sync token when it changes (login/logout)
+  // ✅ keep token synced
   useEffect(() => {
     const syncToken = () => {
-      const newToken = localStorage.getItem("token");
-      console.log("App - storage event, new token:", newToken);
-      setToken(newToken);
+      setToken(localStorage.getItem("token"));
     };
 
     window.addEventListener("storage", syncToken);
-
-    return () => {
-      window.removeEventListener("storage", syncToken);
-    };
+    return () => window.removeEventListener("storage", syncToken);
   }, []);
 
   return (
     <BrowserRouter>
       <Routes>
 
-        {/* Default route */}
+        {/* ROOT */}
         <Route
           path="/"
           element={
@@ -51,29 +44,27 @@ function App() {
           }
         />
 
-        {/* ✅ Social login callback route */}
+        {/* SOCIAL LOGIN */}
         <Route path="/social-login" element={<SocialLogin />} />
 
-        {/* Auth routes */}
+        {/* AUTH */}
         <Route path="/auth-success" element={<AuthSuccess />} />
         <Route path="/auth-error" element={<AuthError />} />
-
-        {/* ✅ ADD THIS 👇 */}
         <Route path="/success" element={<Success />} />
 
-        {/* Login */}
+        {/* LOGIN */}
         <Route
           path="/login"
-          element={!token ? <Login /> : <Navigate to="/dashboard" />}
+          element={!token ? <Login /> : <Navigate to="/" />}
         />
 
-        {/* Signup */}
+        {/* SIGNUP */}
         <Route
           path="/signup"
-          element={!token ? <Signup /> : <Navigate to="/dashboard" />}
+          element={!token ? <Signup /> : <Navigate to="/" />}
         />
 
-        {/* Protected Dashboard */}
+        {/* USER DASHBOARD */}
         <Route
           path="/dashboard"
           element={
@@ -83,7 +74,7 @@ function App() {
           }
         />
 
-        {/* Admin Routes */}
+        {/* ADMIN */}
         <Route
           path="/admin/users"
           element={
