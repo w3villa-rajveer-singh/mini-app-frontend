@@ -1,38 +1,33 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
 import { getProfile } from "../api/user";
 
 const AdminRedirect = () => {
   const [isAdmin, setIsAdmin] = useState(null);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const checkAdminStatus = async () => {
+    const fetchUser = async () => {
       try {
-        const token = localStorage.getItem("token");
-
-        if (!token) {
-          setIsAdmin(false);
-          return;
-        }
-
         const response = await getProfile();
-        const user = response.user; // since you already fixed API
 
-        setIsAdmin(user?.admin === true);
+        const user = response.user;
 
-      } catch (error) {
-        console.error("Error checking admin:", error);
+        console.log("AdminRedirect user:", user);
+
+        // ✅ SAVE USER GLOBALLY
+        localStorage.setItem("user", JSON.stringify(user));
+
+        setIsAdmin(user.admin === true);
+      } catch (err) {
+        console.error("Error fetching profile:", err);
         setIsAdmin(false);
-      } finally {
-        setLoading(false);
       }
     };
 
-    checkAdminStatus();
+    fetchUser();
   }, []);
 
-  if (loading) {
+  if (isAdmin === null) {
     return <div style={{ textAlign: "center", marginTop: "50px" }}>Loading...</div>;
   }
 

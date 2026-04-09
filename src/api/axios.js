@@ -8,7 +8,6 @@ const API = axios.create({
   },
 });
 
-// ✅ Attach token
 API.interceptors.request.use(
   (config) => {
     let token = localStorage.getItem("token");
@@ -23,7 +22,6 @@ API.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// ✅ Handle auth errors safely
 API.interceptors.response.use(
   (response) => response,
   (error) => {
@@ -31,22 +29,16 @@ API.interceptors.response.use(
       console.warn("API Error:", {
         url: error.config?.url,
         status: error.response.status,
-        data: error.response.data,
       });
     }
 
-    // 🔥 ONLY logout if profile fails
     if (
       error.response?.status === 401 &&
       error.config?.url?.includes("/profile")
     ) {
-      console.warn("Token expired → logging out");
-
       localStorage.removeItem("token");
-
-      if (window.location.pathname !== "/login") {
-        window.location.href = "/login";
-      }
+      localStorage.removeItem("user");
+      window.location.href = "/login";
     }
 
     return Promise.reject(error);

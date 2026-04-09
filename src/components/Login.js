@@ -26,7 +26,7 @@ function Login() {
     window.location.href = `${BACKEND_URL}/auth/facebook`;
   };
 
-  // ✅ FIXED: redirect to root (NOT dashboard)
+  // ✅ Redirect if already logged in
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
@@ -48,29 +48,34 @@ function Login() {
     });
   };
 
-  // ✅ FIXED: SAVE TOKEN
+  // ✅ FINAL LOGIN FIX
   const handleLogin = async (e) => {
-  e.preventDefault();
-  setLoading(true);
-  setError("");
+    e.preventDefault();
+    setLoading(true);
+    setError("");
 
-  try {
-    const response = await login(formData);
+    try {
+      const response = await login(formData);
 
-    const token = response.data.token;
-    localStorage.setItem("token", token);
+      const token = response.data.token;
+      const user = response.data.user;
 
-    console.log("Token saved:", token);
+      console.log("Login success:", response.data);
 
-    // ✅ FIXED
-    navigate("/");
+      // ✅ SAVE EVERYTHING
+      localStorage.setItem("token", token);
+      localStorage.setItem("user", JSON.stringify(user));
 
-  } catch (err) {
-    setError("Invalid email or password");
-  } finally {
-    setLoading(false);
-  }
-};
+      // ✅ React navigation (NO reload)
+      navigate("/");
+
+    } catch (err) {
+      console.error(err);
+      setError("Invalid email or password");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="login-container">

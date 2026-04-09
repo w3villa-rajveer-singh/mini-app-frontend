@@ -1,5 +1,4 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { useState, useEffect } from "react";
 
 import Login from "./components/Login";
 import Signup from "./components/Signup";
@@ -20,6 +19,7 @@ function App() {
     <BrowserRouter>
       <Routes>
 
+        {/* ROOT */}
         <Route
           path="/"
           element={
@@ -33,21 +33,27 @@ function App() {
           }
         />
 
+        {/* SOCIAL LOGIN */}
         <Route path="/social-login" element={<SocialLogin />} />
+
+        {/* AUTH */}
         <Route path="/auth-success" element={<AuthSuccess />} />
         <Route path="/auth-error" element={<AuthError />} />
         <Route path="/success" element={<Success />} />
 
+        {/* LOGIN */}
         <Route
           path="/login"
           element={!isLoggedIn ? <Login /> : <Navigate to="/" />}
         />
 
+        {/* SIGNUP */}
         <Route
           path="/signup"
           element={!isLoggedIn ? <Signup /> : <Navigate to="/" />}
         />
 
+        {/* USER DASHBOARD */}
         <Route
           path="/dashboard"
           element={
@@ -57,6 +63,7 @@ function App() {
           }
         />
 
+        {/* ADMIN */}
         <Route
           path="/admin/users"
           element={
