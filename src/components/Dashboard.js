@@ -80,7 +80,7 @@ function Dashboard() {
       email: user?.email,
       userId: user?.id,
       currentPlan: user?.plan_type ? user.plan_type.charAt(0).toUpperCase() + user.plan_type.slice(1) : 'Free',
-      planExpiry: user?.plan_expiry ? new Date(user.plan_expiry).toLocaleDateString() : 'Never',
+      planExpiry: getHoursRemaining(user?.plan_expiry),
       address: location.address,
       latitude: location.latitude,
       longitude: location.longitude,
@@ -99,6 +99,20 @@ function Dashboard() {
   };
 
   const navigate = useNavigate();
+
+  // Helper function to calculate hours remaining
+  const getHoursRemaining = (planExpiry) => {
+    if (!planExpiry) return 'Never';
+    
+    const now = new Date();
+    const expiry = new Date(planExpiry);
+    const diffMs = expiry - now;
+    
+    if (diffMs <= 0) return 'Expired';
+    
+    const diffHours = Math.ceil(diffMs / (1000 * 60 * 60));
+    return `${diffHours} hours`;
+  };
 
   // Fetch profile
   useEffect(() => {
@@ -264,7 +278,7 @@ function Dashboard() {
               <p><strong>Email:</strong> {user?.email}</p>
               <p><strong>User ID:</strong> {user?.id}</p>
               <p><strong>Current Plan:</strong> {user?.plan_type ? user.plan_type.charAt(0).toUpperCase() + user.plan_type.slice(1) : 'Free'}</p>
-              <p><strong>Expiry:</strong> {user?.plan_expiry ? new Date(user.plan_expiry).toLocaleDateString() : 'Never'}</p>
+              <p><strong>Expires in:</strong> {getHoursRemaining(user?.plan_expiry)}</p>
               {location.address && (
                 <>
                   <p>
