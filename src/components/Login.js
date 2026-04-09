@@ -62,25 +62,8 @@ function Login() {
       const loginResponse = await login(formData);
       console.log("Login successful:", loginResponse);
       
-      // Check if user is admin and redirect accordingly
-      try {
-        const profile = await getProfile();
-        console.log("Profile data:", profile);
-        console.log("User data:", profile.user);
-        console.log("Is admin:", profile.user.admin);
-        
-        if (profile.user.admin) {
-          console.log("Redirecting to admin dashboard");
-          navigate("/admin/users");
-        } else {
-          console.log("Redirecting to regular dashboard");
-          navigate("/dashboard");
-        }
-      } catch (profileError) {
-        console.error("Profile fetch error:", profileError);
-        // If profile fetch fails, default to dashboard
-        navigate("/dashboard");
-      }
+      // ✅ Simple redirect to root - AdminRedirect will handle the rest
+      navigate("/");
     } catch (err) {
       console.error("Login error:", err);
       setError("Invalid email or password");
